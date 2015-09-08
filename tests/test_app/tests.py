@@ -54,3 +54,6 @@ class PlainJsonField(TestCase):
         self.assertIsInstance(raw_db_data['many'], list)
         self.assertIsInstance(raw_db_data['nested_1'], dict)
         self.assertIsInstance(raw_db_data['many_nested'], list)
+
+    def test_fail(self):
+        self.assertTrue(False)
