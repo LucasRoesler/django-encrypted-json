@@ -1,7 +1,11 @@
+addons:
+  postgresql: "9.3"
+before_script:
+  - psql -c "create role test with CREATEDB PASSWORD 'test';" -U postgres
+  - psql -c 'create database test;' -U test
 dependencies:
   pre:
     - pip install -r requirements.txt
-    - createuser test -d --superuser
 test:
   override:
     - ./runtests.sh
