@@ -2,7 +2,7 @@ import json
 
 import cryptography.fernet
 from django.conf import settings
-
+from django_pgjson.fields import get_encoder_class
 
 # Allow the use of key rotation
 if isinstance(settings.FIELD_ENCRYPTION_KEY, (tuple, list)):
@@ -29,6 +29,8 @@ def encrypt_values(data, encrypter=None):
     Returns data with values it contains recursively encrypted.
 
     Note that this will use `json.dumps` to convert the data to a string type.
+    The encoder class will be the value of `PGJSON_ENCODER_CLASS` in the
+    settings or `django.core.serializers.json.DjangoJSONEncoder`.
 
     Arguments:
         data (object): the data to decrypt.
@@ -51,7 +53,9 @@ def encrypt_values(data, encrypter=None):
             for key, value in data.iteritems()
         }
 
-    return encrypter(bytes(json.dumps(data)))
+    return encrypter(
+        bytes(json.dumps(data, cls=get_encoder_class()))
+    )
 
 
 def decrypt_values(data, decrypter=None):
@@ -82,22 +86,26 @@ def decrypt_values(data, decrypter=None):
             for key, value in data.iteritems()
         }
 
+    if isinstance(data, basestring):
+        # string data! if we got a string or unicode convert it to
+        # bytes first, as per http://stackoverflow.com/a/11174804
+        data = data.encode('latin-1')
+
     try:
         # decrypt the bytes data
         value = decrypter(data)
     except TypeError:
-        if isinstance(data, basestring):
-            # Not bytes data! if we got a string or unicode convert it to
-            # bytes first, as per http://stackoverflow.com/a/11174804
-            value = decrypter(data.encode('latin-1'))
-        else:
-            # Not a string type?! probably from a django field calleing
-            # to_python while the data is already python
-            value = data
+        # Not bytes data??! probably from a django field calling
+        # to_python during value assignment
+        value = data
     except cryptography.fernet.InvalidToken:
+        # Either the data is corrupted, e.g. a lost key or the data
+        # was never encrypted, this could be from django calling to_python
+        # during value assignment.
         value = data
 
     try:
         return json.loads(value)
     except (ValueError, TypeError):
+        # Not valid json, just return the value
         return value
