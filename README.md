@@ -5,6 +5,6 @@ Some simple encrypted JSON fields for use with Django.
 
 ## Requies
 
-* Djanog
+* Django
 * cryptography
 * django-pgjson
