@@ -1,6 +1,6 @@
 from django_pgjson.fields import JsonField, JsonBField, JsonAdapter
 
-from .utils import encryption
+from .utils import decrypt_values, encrypt_values
 
 
 class EncryptedValueJsonField(JsonField):
@@ -49,7 +49,7 @@ class EncryptedValueJsonField(JsonField):
     """
     def to_python(self, value):
         value = super(EncryptedValueJsonField, self).to_python(value)
-        return encryption.decrypt_values(value)
+        return decrypt_values(value)
 
     def get_db_prep_value(self, value, connection, prepared=False):
         value = super(JsonField, self).get_db_prep_value(
@@ -58,7 +58,7 @@ class EncryptedValueJsonField(JsonField):
         if self.null and value is None:
             return None
 
-        value = encryption.encrypt_values(value)
+        value = encrypt_values(value)
 
         return JsonAdapter(value)
 
