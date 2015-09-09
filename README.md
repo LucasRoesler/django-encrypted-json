@@ -3,6 +3,8 @@ djangp-encrypted-json
 
 Some simple encrypted JSON fields for use with Django.
 
+Test status: [![Circle CI](https://circleci.com/gh/LucasRoesler/django-encrypted-json.svg?style=svg)](https://circleci.com/gh/LucasRoesler/django-encrypted-json)
+
 ## Requies
 
 * Django
