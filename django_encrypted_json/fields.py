@@ -47,6 +47,11 @@ class EncryptedValueJsonField(JsonField):
     Note that values will be forced to a string using `json.dumps` and restored
     using `json.loads`.
     """
+    def __init__(self, *args, **kwargs):
+        self.skip_keys = kwargs.pop('skip_keys', [])
+
+        return super(EncryptedValueJsonField, self).__init__(*args, **kwargs)
+
     def to_python(self, value):
         value = super(EncryptedValueJsonField, self).to_python(value)
         return decrypt_values(value)
@@ -58,7 +63,7 @@ class EncryptedValueJsonField(JsonField):
         if self.null and value is None:
             return None
 
-        value = encrypt_values(value)
+        value = encrypt_values(value, skip_keys=self.skip_keys)
 
         return JsonAdapter(value)
 

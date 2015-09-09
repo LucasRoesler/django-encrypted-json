@@ -24,7 +24,33 @@ else:
 crypter = cryptography.fernet.MultiFernet(keys)
 
 
-def encrypt_values(data, encrypter=None):
+def no_op_encrypt_values(data, encrypter=None, skip_keys=None):
+    """
+    A noop function with the same call signature of `encrypt_values`.
+
+    Returns:
+        obj - returns the data parameter unaltered.
+    """
+    return data
+
+
+def pick_encrypter(key, keys, encrypter):
+    """
+    Returns encrypting function.
+
+    To facilitate skipping keys during encryption we need to pick between the
+    encrypting function or a noop funciton.
+
+    Returns:
+        function
+    """
+    if key in keys:
+        return no_op_encrypt_values
+
+    return encrypter
+
+
+def encrypt_values(data, encrypter=None, skip_keys=None):
     """
     Returns data with values it contains recursively encrypted.
 
@@ -42,14 +68,19 @@ def encrypt_values(data, encrypter=None):
     Returns:
         object
     """
+    if skip_keys is None:
+        skip_keys = []
+
     encrypter = encrypter or crypter.encrypt
 
     if isinstance(data, (list, tuple, set)):
-        return [encrypt_values(x, encrypter) for x in data]
+        return [encrypt_values(x, encrypter, skip_keys) for x in data]
 
     if isinstance(data, dict):
+
         return {
-            key: encrypt_values(value, encrypter)
+            key: pick_encrypter(key, skip_keys, encrypt_values)(
+                value, encrypter, skip_keys)
             for key, value in data.iteritems()
         }
 
