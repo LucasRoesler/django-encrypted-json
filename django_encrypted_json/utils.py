@@ -64,6 +64,7 @@ def encrypt_values(data, encrypter=None, skip_keys=None):
             specified it will use the
             cryptography.fernet.MultiFernetMultiFernet.encrypt method
             with the keys being taken from settings.FIELD_ENCRYPTION_KEY
+        skip_keys (list[str]): a list of keys that should not be encrypted
 
     Returns:
         object
