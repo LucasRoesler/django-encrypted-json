@@ -8,3 +8,5 @@ from django_encrypted_json.fields import EncryptedValueJsonField
 class TestModel(models.Model):
     json = EncryptedValueJsonField(default={})
     optional_json = EncryptedValueJsonField(blank=True, null=True)
+    partial_encrypt = EncryptedValueJsonField(
+        blank=True, null=True, skip_keys=('test', ))
