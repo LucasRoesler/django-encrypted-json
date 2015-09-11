@@ -11,6 +11,9 @@ Test status: [![Circle CI](https://circleci.com/gh/LucasRoesler/django-encrypted
 * cryptography
 * django-pgjson
 
+On Ubuntu you need to install `libffi-dev`
+
+    $ sudo apt-get install libffi-dev
 
 ## Testing
 The test requirements are found in `requirements.txt`
