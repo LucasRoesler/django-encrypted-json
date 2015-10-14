@@ -9,7 +9,7 @@ Encrypted PostgreSQL json field support for Django.
 
 setup(
     name="django-encrypted-pgjson",
-    version="0.2.0",
+    version="0.2.2",
     url="https://github.com/LucasRoesler/django-encrypted-json",
     license="MIT",
     platforms=["OS Independent"],
