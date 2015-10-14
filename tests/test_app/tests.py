@@ -1,4 +1,6 @@
+# -*- coding=utf-8 -*-
 import datetime
+import json
 
 from django.db import connection
 from django.test import TestCase
@@ -8,7 +10,21 @@ from .models import TestModel
 # Create your tests here.
 
 
+LATIN1_NON_BREAKING_SPACE = u"""\
+~~~New Room Update for Crimson House Should we use this same room for
+13:30-14:00 Weekly Sync Meeting (with Gargi)?  Hi All, This is a meeting
+call for Rakuten/HCL weekly sync update: to discuss done, on-going and
+future tasks. It will also be a place to discuss issues/concerns with
+the project.Action points and ownership of tasks (Rakuten or HCL) should
+be decided in this part.  https://confluenc
+"""
+
+UNICODE_HODGEPODGE = \
+    u"Testing «ταБЬℓσ»: 1<2 & 4+1>3, now 20% off! ÄŸÃ¼ÅŸiöçı 木下さん利用"
+
+
 class PlainJsonField(TestCase):
+    maxDiff = 2000
 
     def test_default_create(self):
         instance = TestModel.objects.create()
@@ -93,3 +109,21 @@ class PlainJsonField(TestCase):
         self.assertIsInstance(raw_db_data['datetime'], basestring)
         self.assertIsInstance(raw_db_data['date'], basestring)
         self.assertIsInstance(raw_db_data['with_tz'], basestring)
+
+    def test_latin1(self):
+        instance = TestModel.objects.create()
+        instance.json = {'test': LATIN1_NON_BREAKING_SPACE}
+        instance.save()
+
+        instance.refresh_from_db()
+        self.assertEqual(
+            instance.json['test'],
+            LATIN1_NON_BREAKING_SPACE)
+
+    def test_hodegpodge_unicode(self):
+        instance = TestModel.objects.create()
+        instance.json = {'test': UNICODE_HODGEPODGE}
+        instance.save()
+
+        instance.refresh_from_db()
+        self.assertEqual(instance.json['test'], UNICODE_HODGEPODGE)

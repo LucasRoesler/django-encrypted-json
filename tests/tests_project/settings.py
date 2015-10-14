@@ -26,6 +26,8 @@ FIELD_ENCRYPTION_KEY = [
     bytes('293xHgWwVwu1CrXTc-i1n5olreSGelFAxsbYcfWl-0k='),
 ]
 
+PGJSON_ENCODER_CLASS = "django.core.serializers.json.DjangoJSONEncoder"
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 

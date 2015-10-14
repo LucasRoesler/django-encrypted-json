@@ -85,6 +85,9 @@ def encrypt_values(data, encrypter=None, skip_keys=None):
             for key, value in data.iteritems()
         }
 
+    if isinstance(data, basestring):
+        return encrypter(data.encode('unicode_escape'))
+
     return encrypter(
         bytes(json.dumps(data, cls=get_encoder_class()))
     )
@@ -120,8 +123,13 @@ def decrypt_values(data, decrypter=None):
 
     if isinstance(data, basestring):
         # string data! if we got a string or unicode convert it to
-        # bytes first, as per http://stackoverflow.com/a/11174804
-        data = data.encode('latin-1')
+        # bytes first, as per http://stackoverflow.com/a/11174804.
+        #
+        # Note 1: This is required for the decrypter, it only accepts bytes.
+        # Note 2: this is primarily needed because the decrypt method is called
+        # on the value during the save as well as during the read, by the
+        # django ORM.
+        data = data.encode('unicode_escape')
 
     try:
         # decrypt the bytes data
@@ -135,6 +143,12 @@ def decrypt_values(data, decrypter=None):
         # was never encrypted, this could be from django calling to_python
         # during value assignment.
         value = data
+
+    try:
+        # undo the unicode mess from earlier
+        value = value.decode('unicode_escape')
+    except AttributeError:
+        pass
 
     try:
         return json.loads(value)
