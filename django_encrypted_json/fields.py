@@ -52,6 +52,11 @@ class EncryptedValueJsonField(JsonField):
 
         return super(EncryptedValueJsonField, self).__init__(*args, **kwargs)
 
+    def desconstruct(self):
+        name, path, args, kwargs = super(EncryptedValueJsonField, self).deconstruct()
+        del kwargs["skip_keys"]
+        return name, path, args, kwargs
+
     def to_python(self, value):
         value = super(EncryptedValueJsonField, self).to_python(value)
         return decrypt_values(value)
