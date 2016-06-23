@@ -10,3 +10,5 @@ class TestModel(models.Model):
     optional_json = EncryptedValueJsonField(blank=True, null=True)
     partial_encrypt = EncryptedValueJsonField(
         blank=True, null=True, skip_keys=('test', ))
+    partial_encrypt_w_default = EncryptedValueJsonField(
+        blank=True, skip_keys=('test', ), default=[])
