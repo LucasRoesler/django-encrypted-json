@@ -26,6 +26,26 @@ UNICODE_HODGEPODGE = \
 class PlainJsonField(TestCase):
     maxDiff = 2000
 
+    def test_blank_field(self):
+        # an empty string isn't valid json. make sure that empty string is
+        # translated to an empty dict
+        instance = TestModel.objects.create()
+        instance.partial_encrypt = ""
+        instance.save()
+
+        d = TestModel.objects.get(pk=instance.pk).partial_encrypt
+        self.assertEqual(d, {})
+
+    def test_blank_field_with_default(self):
+        # an empty string isn't valid json. make sure that empty string is
+        # translated to an empty dict
+        instance = TestModel.objects.create()
+        instance.partial_encrypt_w_default = ""
+        instance.save()
+
+        d = TestModel.objects.get(pk=instance.pk).partial_encrypt_w_default
+        self.assertEqual(d, list())
+
     def test_default_create(self):
         instance = TestModel.objects.create()
 

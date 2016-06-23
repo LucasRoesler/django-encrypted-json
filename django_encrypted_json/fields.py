@@ -1,3 +1,4 @@
+from django.db.models.fields import NOT_PROVIDED
 from django_pgjson.fields import JsonField, JsonBField, JsonAdapter
 
 from .utils import decrypt_values, encrypt_values
@@ -65,6 +66,18 @@ class EncryptedValueJsonField(JsonField):
         value = super(JsonField, self).get_db_prep_value(
             value, connection, prepared=prepared
         )
+
+        # Because an empty string is not valid json, replace it with an empty
+        # dict
+        if self.blank and value == "":
+            if self.default != NOT_PROVIDED:
+                if callable(self.default):
+                    value = self.default()
+                else:
+                    value = self.default
+            else:
+                value = {}
+
         if self.null and value is None:
             return None
 
